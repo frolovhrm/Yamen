@@ -26,7 +26,7 @@ def readnewfiles():
                 if files not in listfiles:
                     listfiles.append(file)
                     newfiles += 1
-    print(f'Добавленно {newfiles} новых файлов')
+    print(f'Добавленно {newfiles} новы х файлов')
 
 def printlistfiles():
     for file in listfiles:
@@ -36,10 +36,17 @@ def readImage(name):
     # image = cv2.imread(name)
     image = Image.open(name)
     string = pytesseract.image_to_string(image, lang='rus')
-    print(string)
+    string2 = " ".join(string.split())
+    print(string2)
+    # print(type(string))
 
+#
+# readnewfiles()
+#
+# testfile = "test.jpg"
+# readImage(testfile)
 
-readnewfiles()
+worklist = ['test.jpg', 'test2.jpg', 'test3.jpg', 'test4.jpg']
 
-testfile = "test2.png"
-readImage(testfile)
+for file in worklist:
+    readImage(file)
