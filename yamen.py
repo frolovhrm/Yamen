@@ -1,19 +1,17 @@
+import time
+
+start_time = time.time()
 import os
 import pytesseract
 import cv2
 # import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
-import time
-
-
-start_time = time.time()
 
 pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR/tesseract.exe'
 screenshotspath = 'C:\PetScaner\Screenshert'
 listfiles = []
 truelistfile = []
 newfiles = 0
-worklist = ['test.jpg', 'test2.jpg', 'test3.jpg', 'test4.jpg']
 numtruefiles = 0
 bedfiles = []
 one_file = ''
@@ -37,7 +35,8 @@ def printlistfiles():
 
 def readImagetoText(screenshotname):
     # image = cv2.imread(name)
-    image = Image.open(screenshotname)
+    image = change_size(Image.open(screenshotname))
+
     string = pytesseract.image_to_string(image, lang='rus')
     string2 = " ".join(string.split())
     return string2
@@ -48,6 +47,7 @@ def check_one(path):
     filename = 'C:\PetScaner/venv\Yamen/ans.jpg'
     readedtext = readImagetoText(filename)
     print(f'{readedtext}')
+
 
 def b_w(path):
     filename = f'C:\PetScaner\Screenshert/{path}'
@@ -69,55 +69,46 @@ def b_w(path):
             else:
                 a, b, c = 0, 0, 0
             draw.point((i, j), (a, b, c))
-    filenameBW = f'C:\PetScaner\Screenshert/BW/BW_{path}'
-    image.save(filenameBW, "JPEG")
+    filename = f'C:\PetScaner\Screenshert/BW/BW_{path}'
+    image.save(filename, "JPEG")
     del draw
 
+def change_size(img):
+    height_size = int(float(img.size[1]) / 3)
+    width_size = int(float(img.size[0]) / 3)
+    new_image = img.resize((width_size, height_size))
+    # new_image.show()
+    # new_image.save('BW_resize2.jpg')
+    return new_image
 
 
-# one_file = 'Screenshot_2021-07-19-21-37-09-368_ru.yandex.taximeter.x.jpg'
-#
-# bw(one_file)
+
+readtext = ''
+substreng = ('Самозанятый', 'Сегодня', 'За заказы')
+true_flag = False
 
 readnewfilesifYandex()
 
 n = 0
-while n <= 10:
-    filename = listfiles[n]
-    b_w(filename)
+while n <= 10:  # len(listfiles)
+    filename = f'C:\PetScaner\Screenshert/{listfiles[n]}'
+    readedtext = readImagetoText(filename)
+    n += 1
+    for sub in substreng:
+        if readedtext.find(sub) != -1:
+            truelistfile.append(readedtext)
+            numtruefiles += 1
+            true_flag = True
+            break
+        else:
+            true_flag = False
+    if true_flag == False:
+        bedfiles.append(f'{filename} -----> {readedtext}')
 
-    print(n)
-    n +=1
+print(f'Подходящих файлов {numtruefiles}, битых {len(bedfiles)}')
 
+for i in truelistfile:
+    print(i)
+print()
 
-
-# if one_file:
-#     check_one(one_file)
-# else:
-#
-#     n = 0
-#     readtext = ''
-#     substreng1 = ('Самозанятый', 'Сегодня', 'За заказы')
-#
-#     while n <= 10:  # len(listfiles)
-#         filename = f'C:\PetScaner\Screenshert/{listfiles[n]}'
-#         readedtext = readImagetoText(filename)
-#         # print(f'{n + 1}. {readedtext}')
-#         n += 1
-#
-#         if readedtext.find(substreng1) != -1:
-#             truelistfile.append(readedtext)
-#             numtruefiles += 1
-#         elif readedtext.find(substreng2) != -1:
-#             truelistfile.append(readedtext)
-#             numtruefiles += 1
-#         elif readedtext.find(substreng2) != -1:
-#             truelistfile.append(readedtext)
-#             numtruefiles += 1
-#         else:
-#             bedfiles.append(readedtext)
-#             print(filename)
-#
-#     print(f'Подходящих файлов {numtruefiles}')
-
-print("--- %s seconds ---" % (time.time() - start_time))
+print("--- %s seconds ---" % int(time.time() - start_time))
