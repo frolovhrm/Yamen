@@ -4,7 +4,6 @@ start_time = time.time()
 import os
 import pytesseract
 import cv2
-# import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
 
 pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR/tesseract.exe'
@@ -30,10 +29,16 @@ def readnewfilesifYandex():  # Выбирает скрины из указанн
 
 def readImagetoText(screenshotname):  # распознает текст в картинке, сохнаняет в строку
     # image = cv2.imread(name)
-    image = change_size(Image.open(screenshotname))
-    image = b_w(image)
 
-    string = pytesseract.image_to_string(image, lang='rus')
+    # image = b_w(image)
+    image = cv2.imread(screenshotname)
+    # small_image = change_size(image)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # gray.show()
+
+    config = r'--oem 3 --psm 6'
+
+    string = pytesseract.image_to_string(gray, lang='rus', config=config)
     string2 = " ".join(string.split())
     return string2
 
@@ -188,7 +193,7 @@ def parsstr_1(splited):
             print (f'За сегодня {all_profit}')
 
         if step == 'За':
-            orders_str = str_line[i + 2]
+            orders_str = str_line[i + 4]
             if orders_str == 'б':
                 orders = 6
             else:
