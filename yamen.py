@@ -27,10 +27,10 @@ def readnewfilesifYandex():  # Выбирает скрины из указанн
     print(f'Добавленно {newfiles} новых файлов')
 
 
-def readImagetoText(screenshotname):  # распознает текст в картинке, сохнаняет в строку
+def readImagetoText(filename):  # распознает текст в картинке, сохнаняет в строку
     # image = cv2.imread(name)
-
     # image = b_w(image)
+    screenshotname = f'C:\PetScaner\Screenshert/{filename}'
     image = cv2.imread(screenshotname)
     # small_image = change_size(image)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -41,6 +41,18 @@ def readImagetoText(screenshotname):  # распознает текст в ка�
     string = pytesseract.image_to_string(gray, lang='rus', config=config)
     string2 = " ".join(string.split())
     return string2
+
+def readImagetoText_2(screenshotname):
+    pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR/tesseract.exe'
+    img_cv = cv2.imread(f'C:\PetScaner\Screenshert/[{screenshotname}]')
+
+    img_rgb = cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB)
+
+    config = r'--oem 3 --psm 6'
+    string_text = pytesseract.image_to_string(img_rgb, lang='rus', config=config)
+    string_text_split = " ".join(string_text.split())
+
+    return string_text_split
 
 def change_size(img):  # изменяет размер скрина до оптимального
     height_size = int(float(img.size[1]) / 3)
@@ -224,11 +236,11 @@ readnewfilesifYandex()
 read_old_true_file_list()
 
 n = 0
-while n <= 4:  # len(listfiles)
-    filename = f'C:\PetScaner\Screenshert/{fulllistfiles[n]}'
-    readedtext = readImagetoText(filename)
+while n <= 1:  # len(listfiles)
 
-    if fulllistfiles[n] == 'Screenshot_2021-07-19-21-37-09-368_ru.yandex.taximeter.x.jpg':
+    readedtext = readImagetoText(fulllistfiles[n])
+
+    if fulllistfiles[n] == 'Screenshot_2021-07-19-21-37-09-3468_ru.yandex.taximeter.x.jpg':
         print(readedtext)
         pars_str = readedtext.split()
         parsstr_1(pars_str)
@@ -250,9 +262,9 @@ print(f'Подходящих файлов {len(truelistfile)}, битых {len(b
 
 save_resulties()
 
-# for text in truetextfile:
-#     print(text)
+for text in truetextfile:
+    print(text)
 
 
-print("--- %s seconds ---" % int(time.time() - start_time))
+print("\n--- %s seconds ---" % int(time.time() - start_time))
 
