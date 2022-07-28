@@ -172,7 +172,7 @@ def parsstr_1(splited):
     # date = date(0)
     all_profit = float(0.0)
     cash_profit = 0
-    noncach_profin = 0
+    cart_profin = 0
     orders = 0
     orders_str = ''
     income = 0
@@ -193,13 +193,15 @@ def parsstr_1(splited):
                     break
                 else:
                     print(str_line[n + 1])
-                    all_profit_str = all_profit_str + str_line[n + 1]
+                    all_profit_str = all_profit_str + str_line[n + 1] + str_line[n + 2]
                     n +=1
                     if n > 10:
                         break
             all_profit_str = all_profit_str.replace('Р', '')
             all_profit_str = all_profit_str.replace('}', '')
             all_profit_str = all_profit_str.replace(',', '.')
+            all_profit_str = all_profit_str.replace('#', '')
+            all_profit_str = all_profit_str.replace('?', '')
             all_profit = float(all_profit_str)
 
             print (f'За сегодня {all_profit}')
@@ -236,11 +238,11 @@ readnewfilesifYandex()
 read_old_true_file_list()
 
 n = 0
-while n <= 1:  # len(listfiles)
+while n <= 5:  # len(listfiles)
 
     readedtext = readImagetoText(fulllistfiles[n])
 
-    if fulllistfiles[n] == 'Screenshot_2021-07-19-21-37-09-3468_ru.yandex.taximeter.x.jpg':
+    if fulllistfiles[n] == 'Screenshot_2021-07-20-18-25-52-679_ru.yandex.taximeter.x.jpg':
         print(readedtext)
         pars_str = readedtext.split()
         parsstr_1(pars_str)
