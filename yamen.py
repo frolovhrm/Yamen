@@ -238,11 +238,11 @@ readnewfilesifYandex()
 read_old_true_file_list()
 
 n = 0
-while n <= 5:  # len(listfiles)
+while n <= 1:  # len(listfiles)
 
     readedtext = readImagetoText(fulllistfiles[n])
 
-    if fulllistfiles[n] == 'Screenshot_2021-07-20-18-25-52-679_ru.yandex.taximeter.x.jpg':
+    if fulllistfiles[n] == 'Screenshot_2021-07-20-18-25-52-0679_ru.yandex.taximeter.x.jpg':
         print(readedtext)
         pars_str = readedtext.split()
         parsstr_1(pars_str)
