@@ -1,4 +1,5 @@
 import time
+import datetime
 
 start_time = time.time()
 import os
@@ -9,10 +10,16 @@ from PIL import Image
 fulllistfiles = []
 truelistfile = []
 bedlistfiles = []
-truetextfile = []
+truetextfileZan = []
+falsetextfile = []
+zan = 0
+seg = 0
+zaza = 0
+dataline = ''
 
 pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR/tesseract.exe'
 screenshotspath = 'C:\PetScaner\Screenshert'
+
 
 def readnewfilesifYandex():  # Выбирает скрины из указанной папки ести они с яндекса и пишет в список
     newfiles = 0
@@ -25,26 +32,53 @@ def readnewfilesifYandex():  # Выбирает скрины из указанн
     print(f'Добавленно {newfiles} новых файлов')
 
 
-def readImagetoText_2(screenshotname):
-    path_screen = f'C:\PetScaner\Screenshert/Screenshot_2021-07-19-21-36-53-777_ru.yandex.taximeter.x.jpg'
-    img_cv = cv2.imread(path_screen)
-
-    img_rgb = cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB)
-
+def readImagetoText(filename):  # распознает текст в картинке, сохнаняет в строку
+    screenshotname = f'C:\PetScaner\Screenshert/{filename}'
+    image = cv2.imread(screenshotname)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     config = r'--oem 3 --psm 6'
-    string_text = pytesseract.image_to_string(img_rgb, lang='rus', config=config)
-    string_text_split = " ".join(string_text.split())
+    string = pytesseract.image_to_string(gray, lang='rus', config=config)
+    string2 = " ".join(string.split())
+    return string2
 
-    return string_text_split
+def nameToDate(name):
+    date_str = name.split('_')
+    datetimeplus = date_str[1]
+    date_split = datetimeplus.split('-')
+    date_split.pop(-1)
+    date_time_str = ' '.join(date_split)
+    date_time_obj = datetime.datetime.strptime(date_time_str, '%Y %m %d %H %M %S')
+    print('Дата и время:', date_time_obj)
+
 
 
 readnewfilesifYandex()
 
+
+
+
 i = 0
-while i < 5:
-    print(readImagetoText_2(fulllistfiles[i]))
+while i < 10:
+    stringline = readImagetoText(fulllistfiles[i])
     i += 1
+    print(i)
+    nameToDate(fulllistfiles[i])
 
+    if 'занятый' in stringline:
+        zan += 1
+        continue
+    if 'За заказы' in stringline:
+        zaza += 1
+        continue
+    if 'Сегодня' in stringline:
+        seg += 1
+        continue
+    else:
+        falsetextfile.append(stringline)
 
+dataline = fulllistfiles[i]
 
+print(f'Самозанятый {zan}, За заказы {zaza}, Сегодня {seg}, Остальные {len(falsetextfile)}')
+for falsetext in falsetextfile:
+    print(falsetext)
 print("\n--- %s seconds ---" % int(time.time() - start_time))
