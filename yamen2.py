@@ -7,6 +7,8 @@ import pytesseract
 import cv2
 from PIL import Image
 
+pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR/tesseract.exe'
+
 fulllistfiles = []
 truelistfile = []
 bedlistfiles = []
@@ -15,9 +17,7 @@ falsetextfile = []
 zan = 0
 seg = 0
 zaza = 0
-dataline = ''
 
-pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR/tesseract.exe'
 screenshotspath = 'C:\PetScaner\Screenshert'
 
 
@@ -55,10 +55,8 @@ def nameToDate(name):
 readnewfilesifYandex()
 
 
-
-
 i = 0
-while i < 10:
+while i < 2:
     stringline = readImagetoText(fulllistfiles[i])
     i += 1
     print(i)
@@ -76,9 +74,9 @@ while i < 10:
     else:
         falsetextfile.append(stringline)
 
-dataline = fulllistfiles[i]
-
 print(f'Самозанятый {zan}, За заказы {zaza}, Сегодня {seg}, Остальные {len(falsetextfile)}')
 for falsetext in falsetextfile:
     print(falsetext)
+
+
 print("\n--- %s seconds ---" % int(time.time() - start_time))
