@@ -10,14 +10,14 @@ from PIL import Image
 pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR/tesseract.exe'
 screenshotspath = 'C:\PetScaner\Screenshert'
 fulllistfiles = []
-activ = float(0.0)
-rait = float(0.0)
+
+activ = 0.0
+rait = 0.0
 grate = 0
-all_profit = float(0.0)
+all_profit = 0.0
 cash_profit = 0
 cart_profin = 0
 orders = 0
-orders_str = ''
 income = 0
 commission = 0
 mileage = 0
@@ -68,14 +68,11 @@ def samozan(str_line):
     commission = 0
     mileage = 0
     balance = 0.0
-    # print(str_line)
-    count = 0
 
     while position < len(str_line):
 
         """ Активность, Рейтинг, Уровень """
         if str_line[position] == 'Самозанятый':
-            count += 1
             activ = int(str_line[position + 1])
             rait = float(str_line[position + 2])
             if str_line[position + 3] == 'Бронза':
@@ -85,9 +82,7 @@ def samozan(str_line):
             if str_line[position + 3] == 'Платина':
                 grate = 1
 
-
         if str_line[position] == 'Сегодня':
-            count += 1
             """ Всего выручка """
             if len(str_line[position + 1]) == 1:
                 all_profit_str = str_line[position + 1] + str_line[position + 2]
@@ -114,18 +109,17 @@ def samozan(str_line):
 
         """ Выручка наличные """
         if str_line[position] == 'карта':
-            count += 1
-            if len(str_line[position + 2]) == 1:
-                cash_profit_str = str_line[position + 2] + str_line[position + 3]
-            else:
-                cash_profit_str = str_line[position + 2]
-            cash_profit_str = cash_profit_str[:-1]
-            cash_profit_str = cash_profit_str.replace(',', '.')
-            cash_profit = float(cash_profit_str)
+            if str_line[position + 1] != 'водителя':
+                if len(str_line[position + 2]) == 1:
+                    cash_profit_str = str_line[position + 2] + str_line[position + 3]
+                else:
+                    cash_profit_str = str_line[position + 2]
+                cash_profit_str = cash_profit_str[:-1]
+                cash_profit_str = cash_profit_str.replace(',', '.')
+                cash_profit = float(cash_profit_str)
 
         """ Заказов """
         if str_line[position] == 'заказы':
-            count += 1
             try:
                 if str_line[position + 3] == '›':
                     orders = int(str_line[position + 4])
@@ -142,7 +136,6 @@ def samozan(str_line):
 
         """ Пробег """
         if str_line[position] == 'Пробег':
-            count += 1
             try:
                 mileage = int(str_line[position + 1])
 
@@ -155,7 +148,6 @@ def samozan(str_line):
                     mileage = 99999
 
         if str_line[position] == 'Баланс':
-            count += 1
             if len(str_line[position + 1]) == 1:
                 balance_str = str_line[position + 1] + str_line[position + 2]
             else:
@@ -166,18 +158,15 @@ def samozan(str_line):
 
         position += 1
 
-        # if count == 0:
-        #     break
-
 
     return activ, rait, grate, all_profit, cart_profit, cash_profit, orders, income, commission, mileage, balance
+
 
 readnewfilesifYandex()
 
 i = 0
 while i < 30:
     str_line = readImagetoText(fulllistfiles[i])
-
 
     print(f'{nameToDate(fulllistfiles[i])} - {samozan(str_line)} - {fulllistfiles[i]} --- {str_line}')
     i += 1
