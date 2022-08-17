@@ -44,33 +44,36 @@ def writeFilenamToSql(list):
             # reques = c.execute(f"SELECT file_name, * FROM names_files WHERE rowid = {n} ")
             # if reques:
             name = "'" + n + "'"
-            cursor.execute( f"INSERT INTO names_files VALUES(null, {name}, 'falce')")
+            cursor.execute(f"INSERT INTO names_files VALUES(null, {name}, 'falce')")
 
 
 def writeRededFeldsToSql(felds):
     with sq.connect('yamen.db') as con:
         cursor = con.cursor()
-        cursor.execute("INSERT INTO names_files VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", felds)
+        cursor.execute("INSERT INTO readed_text VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", felds)
+
 
 def readImagetoText(filename):  # распознает текст в картинке, сохнаняет в строку
-        screenshotname = f'{screenshotspath}\{filename}'
-        image = cv2.imread(screenshotname)
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        config = r'--oem 3 --psm 6'
-        string = pytesseract.image_to_string(gray, lang='rus', config=config)
-        string2 = string.split()
-        return string2
+    screenshotname = f'{screenshotspath}\{filename}'
+    image = cv2.imread(screenshotname)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    config = r'--oem 3 --psm 6'
+    string = pytesseract.image_to_string(gray, lang='rus', config=config)
+    string2 = string.split()
+    return string2
+
 
 def nameToDate(name):
-        date_str = name.split('_')
-        datetimeplus = date_str[1]
-        date_split = datetimeplus.split('-')
-        date_split.pop(-1)
-        date_time_str = ' '.join(date_split)
-        date_time_obj = datetime.datetime.strptime(date_time_str, '%Y %m %d %H %M %S')
-        return date_time_obj
+    date_str = name.split('_')
+    datetimeplus = date_str[1]
+    date_split = datetimeplus.split('-')
+    date_split.pop(-1)
+    date_time_str = ' '.join(date_split)
+    date_time_obj = datetime.datetime.strptime(date_time_str, '%Y %m %d %H %M %S')
+    return date_time_obj
 
-def samozan(str_line):
+
+def samozan(str_line, name):
     position = 0
     activ = 0.0
     rait = 0.0
@@ -173,21 +176,27 @@ def samozan(str_line):
 
         position += 1
 
-    return activ, rait, grate, all_profit, cart_profit, cash_profit, orders, income, commission, mileage, balance
+    date_str = name.split('_')
+    datetimeplus = date_str[1]
+    date_split = datetimeplus.split('-')
+    date_split.pop(-1)
+    date_time_str = ' '.join(date_split)
+    date_time_obj = str(datetime.datetime.strptime(date_time_str, '%Y %m %d %H %M %S'))
+
+    return date_time_obj, activ, rait, grate, all_profit, cart_profit, cash_profit, orders, income, commission, mileage, balance
+
 
 readnewfilesifYandex()
 
 writeFilenamToSql(fulllistfiles)
 
-i = 0
-while i < 1:
-    str_line = readImagetoText(fulllistfiles[i])
-    print(type(str_line))
-    kort = f'{nameToDate(fulllistfiles[i])}, {samozan(str_line)}'
-    print(kort)
-
-
-    # print(f'{nameToDate(fulllistfiles[i])} - {samozan(str_line)} - {fulllistfiles[i]} --- {str_line}')
-    i += 1
+j = 10
+i = j
+while i > 0:
+    str_line = readImagetoText(fulllistfiles[j - i])
+    kort = samozan(str_line, fulllistfiles[j - i])
+    writeRededFeldsToSql(kort)
+    i -= 1
+    print(f'осталось {i}')
 
 print("\n--- %s seconds ---" % int(time.time() - start_time))

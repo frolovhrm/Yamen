@@ -13,8 +13,7 @@ with sq.connect('yamen.db') as con:
 
     cur.execute ("""CREATE TABLE IF NOT EXISTS readed_text (
     date TEXT NOT NULL,
-    position INTEGER,
-    activ REAL,
+    activ INTEGER,
     rait REAL,
     grate INTEGER,
     all_profit REAL,
