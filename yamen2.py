@@ -1,5 +1,6 @@
 import time
 import datetime
+import sqlite3 as sq
 
 start_time = time.time()
 import os
@@ -35,25 +36,39 @@ def readnewfilesifYandex():  # Выбирает скрины из указанн
     print(f'Добавленно {newfiles} новых файлов')
 
 
-def readImagetoText(filename):  # распознает текст в картинке, сохнаняет в строку
-    screenshotname = f'{screenshotspath}\{filename}'
-    image = cv2.imread(screenshotname)
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    config = r'--oem 3 --psm 6'
-    string = pytesseract.image_to_string(gray, lang='rus', config=config)
-    string2 = string.split()
-    return string2
+def writeFilenamToSql(list):
+    reques = True
+    with sq.connect('yamen.db') as con:
+        cursor = con.cursor()
+        for n in list:
+            # reques = c.execute(f"SELECT file_name, * FROM names_files WHERE rowid = {n} ")
+            # if reques:
+            name = "'" + n + "'"
+            cursor.execute( f"INSERT INTO names_files VALUES(null, {name}, 'falce')")
 
+
+def writeRededFeldsToSql(felds):
+    with sq.connect('yamen.db') as con:
+        cursor = con.cursor()
+        cursor.execute("INSERT INTO names_files VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", felds)
+
+def readImagetoText(filename):  # распознает текст в картинке, сохнаняет в строку
+        screenshotname = f'{screenshotspath}\{filename}'
+        image = cv2.imread(screenshotname)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        config = r'--oem 3 --psm 6'
+        string = pytesseract.image_to_string(gray, lang='rus', config=config)
+        string2 = string.split()
+        return string2
 
 def nameToDate(name):
-    date_str = name.split('_')
-    datetimeplus = date_str[1]
-    date_split = datetimeplus.split('-')
-    date_split.pop(-1)
-    date_time_str = ' '.join(date_split)
-    date_time_obj = datetime.datetime.strptime(date_time_str, '%Y %m %d %H %M %S')
-    return date_time_obj
-
+        date_str = name.split('_')
+        datetimeplus = date_str[1]
+        date_split = datetimeplus.split('-')
+        date_split.pop(-1)
+        date_time_str = ' '.join(date_split)
+        date_time_obj = datetime.datetime.strptime(date_time_str, '%Y %m %d %H %M %S')
+        return date_time_obj
 
 def samozan(str_line):
     position = 0
@@ -158,17 +173,21 @@ def samozan(str_line):
 
         position += 1
 
-
     return activ, rait, grate, all_profit, cart_profit, cash_profit, orders, income, commission, mileage, balance
-
 
 readnewfilesifYandex()
 
-i = 0
-while i < 30:
-    str_line = readImagetoText(fulllistfiles[i])
+writeFilenamToSql(fulllistfiles)
 
-    print(f'{nameToDate(fulllistfiles[i])} - {samozan(str_line)} - {fulllistfiles[i]} --- {str_line}')
+i = 0
+while i < 1:
+    str_line = readImagetoText(fulllistfiles[i])
+    print(type(str_line))
+    kort = f'{nameToDate(fulllistfiles[i])}, {samozan(str_line)}'
+    print(kort)
+
+
+    # print(f'{nameToDate(fulllistfiles[i])} - {samozan(str_line)} - {fulllistfiles[i]} --- {str_line}')
     i += 1
 
 print("\n--- %s seconds ---" % int(time.time() - start_time))
