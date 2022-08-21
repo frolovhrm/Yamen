@@ -27,6 +27,7 @@ fulllistfiles = []
 
 
 def sheckFileNameInBase(name):
+    """ Проверяем наличие файла в базе"""
     with sq.connect('yamen.db') as con:
         cursor = con.cursor()
         name = f"'{name}'"
@@ -37,7 +38,8 @@ def sheckFileNameInBase(name):
             return False
 
 
-def readnewfilesifYandex():  # Выбирает скрины из указанной папки ести они с яндекса и пишет в список
+def readnewfilesifYandex():
+    """ Собираем список файлов подходящих для сканирования"""
     newfiles = 0
     for adress, dirs, files in os.walk(screenshotspath):
         for file in files:
@@ -49,6 +51,7 @@ def readnewfilesifYandex():  # Выбирает скрины из указанн
 
 
 def writeFilenamToSql(list):
+    """ Пишем имя файла в базу"""
     reques = True
     with sq.connect('yamen.db') as con:
         cursor = con.cursor()
@@ -58,12 +61,14 @@ def writeFilenamToSql(list):
 
 
 def writeRededFeldsToSql(felds):
+    """ Записываем в базу прочитанные поля"""
     with sq.connect('yamen.db') as con:
         cursor = con.cursor()
         cursor.execute("INSERT INTO readed_text VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", felds)
 
 
 def readImagetoText(filename):  # распознает текст в картинке, сохнаняет в строку
+    """ Переводим в текст картинку"""
     screenshotname = f'{screenshotspath}\{filename}'
     image = cv2.imread(screenshotname)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -74,6 +79,7 @@ def readImagetoText(filename):  # распознает текст в карти�
 
 
 def nameToDate(name):
+    """ Из имени файла достаем дату """
     date_str = name.split('_')
     datetimeplus = date_str[1]
     date_split = datetimeplus.split('-')
@@ -84,6 +90,7 @@ def nameToDate(name):
 
 
 def readTextToFelds(str_line, name):
+    """ Парсим строку, достаем данные по полям"""
     position = 0
     activ = 0.0
     rait = 0.0
