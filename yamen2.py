@@ -209,7 +209,7 @@ print(f'Найдено {len(fulllistfiles)} новых файлов для ск�
 writeFilenamToSql(fulllistfiles)
 
 
-j = len(fulllistfiles)
+j = 3
 i = j
 while i > 0:
     if len(fulllistfiles) > 0:
