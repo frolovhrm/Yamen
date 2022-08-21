@@ -23,6 +23,18 @@ income = 0
 commission = 0
 mileage = 0
 balance = 0
+fulllistfiles = []
+
+
+def sheckFileNameInBase(name):
+    with sq.connect('yamen.db') as con:
+        cursor = con.cursor()
+        name = f"'{name}'"
+        cursor.execute(f"SELECT name_file FROM names_files WHERE name_file = {name}")
+        if cursor.fetchone() is None:
+            return True
+        else:
+            return False
 
 
 def readnewfilesifYandex():  # Выбирает скрины из указанной папки ести они с яндекса и пишет в список
@@ -30,10 +42,10 @@ def readnewfilesifYandex():  # Выбирает скрины из указанн
     for adress, dirs, files in os.walk(screenshotspath):
         for file in files:
             if 'yandex.taximeter' in file:
-                if files not in fulllistfiles:
+                if sheckFileNameInBase(file):
                     fulllistfiles.append(file)
                     newfiles += 1
-    print(f'Добавленно {newfiles} новых файлов')
+    # print(f'Найдено {newfiles} новых файлов.')
 
 
 def writeFilenamToSql(list):
@@ -41,8 +53,6 @@ def writeFilenamToSql(list):
     with sq.connect('yamen.db') as con:
         cursor = con.cursor()
         for n in list:
-            # reques = c.execute(f"SELECT file_name, * FROM names_files WHERE rowid = {n} ")
-            # if reques:
             name = "'" + n + "'"
             cursor.execute(f"INSERT INTO names_files VALUES(null, {name}, 'falce')")
 
@@ -73,7 +83,7 @@ def nameToDate(name):
     return date_time_obj
 
 
-def samozan(str_line, name):
+def readTextToFelds(str_line, name):
     position = 0
     activ = 0.0
     rait = 0.0
@@ -175,7 +185,7 @@ def samozan(str_line, name):
             balance = float(balance_str)
 
         position += 1
-
+    ''' Получение даты из имени файла'''
     date_str = name.split('_')
     datetimeplus = date_str[1]
     date_split = datetimeplus.split('-')
@@ -187,16 +197,24 @@ def samozan(str_line, name):
 
 
 readnewfilesifYandex()
-
+print(f'Найдено {len(fulllistfiles)} новых файлов для сканирования.')
+# sheckFileNameInBase()
 writeFilenamToSql(fulllistfiles)
 
-j = 10
+
+j = len(fulllistfiles)
 i = j
 while i > 0:
-    str_line = readImagetoText(fulllistfiles[j - i])
-    kort = samozan(str_line, fulllistfiles[j - i])
-    writeRededFeldsToSql(kort)
-    i -= 1
-    print(f'осталось {i}')
+    if len(fulllistfiles) > 0:
+        if i == j:
+            print(f'Начинаем перенос данных из новых файлов в базу,\nосталось {i}')
+        str_line = readImagetoText(fulllistfiles[j - i])
+        kort = readTextToFelds(str_line, fulllistfiles[j - i])
+        writeRededFeldsToSql(kort)
+        i -= 1
+        print(f'осталось {i}')
+    else:
+        # print('Новых файлов не найдено')
+        break
 
 print("\n--- %s seconds ---" % int(time.time() - start_time))
