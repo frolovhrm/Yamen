@@ -9,10 +9,8 @@ import cv2
 from PIL import Image
 from parsing import readTextToFelds
 
-
-
-
 screenshetspath = 'C:\PetScaner\Screenshert'
+
 
 def sheckNewFileNameInBase(name):
     """ Проверяем наличие файла в базе"""
@@ -35,7 +33,6 @@ def readNewFilesIfYandexToBase():
                 if sheckNewFileNameInBase(file):
                     filelist.append("'" + file + "'")
     writeFileNameToSql(filelist)
-    print(f'В базу добавлено {len(filelist)} новых файлов \n')
 
 
 def writeFileNameToSql(list):
@@ -44,7 +41,12 @@ def writeFileNameToSql(list):
     with sq.connect('yamen.db') as con:
         cursor = con.cursor()
         for n in list:
-            cursor.execute(f"INSERT INTO names_files VALUES(null, {n}, 'Falce')")
+            cursor.execute(f"INSERT INTO names_files VALUES(null, {n}, 'False')")
+        print(f'В базу добавлено новых файлов - {len(list)} ')
+        count = cursor.execute("SELECT COUNT (readed) FROM names_files WHERE readed = 'False'")
+        for i in count:
+            print(f'Файлов непрочитанных в базе - {i[0]}')
+
 
 def readImagetoText(filename):  # распознает текст в картинке, сохнаняет в строку
     """ Переводим картинку в текст"""
@@ -57,6 +59,7 @@ def readImagetoText(filename):  # распознает текст в карти�
     string2 = string.split()
     return string2
 
+
 def nameToDate(name):
     """ Из имени файла достаем дату """
     date_str = name.split('_')
@@ -68,29 +71,44 @@ def nameToDate(name):
     return date_time_obj
 
 
+def exportDateFile():
+    """ Получение данных и сохнанение CSV """
+    print('Файл *.csv подготовлен и сохнанен в папку с программой.\nУдачи!')
+
+
 readNewFilesIfYandexToBase()
 
-
-# i = int(input('Сколько файлов прочитать?'))
+k = int(input('Сколько файлов прочитать? - '))
 j = 0
 count = 0
 
 with sq.connect('yamen.db') as con:
     cursor = con.cursor()
-    while j < 12:
-        name = cursor.execute("SELECT id, name_file FROM names_files WHERE readed = 'Falce' LIMIT 1")
+    while j < k:
+        name = cursor.execute("SELECT id, name_file FROM names_files WHERE readed = 'False' LIMIT 1")
         for i in name:
             id = i[0]
-            name = str(i[1])
-            stringline = readImagetoText(name)
-            filds = readTextToFelds(stringline, name)
-            cursor.execute("INSERT INTO readed_text VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", filds)
+            namefile = str(i[1])
+            stringline = readImagetoText(namefile)
+            try:
+                filds = readTextToFelds(stringline, namefile)
+                cursor.execute("INSERT INTO readed_text VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", filds)
+            except ValueError:
+                print(namefile, ' - ', stringline)
+                break
+                k = 0
 
-        cursor.execute('UPDATE names_files SET readed = ? WHERE id = ?', ( True, id))
+            cursor.execute('UPDATE names_files SET readed = ? WHERE id = ?', (True, id))
 
         count += 1
         j += 1
     print(f'Расшифровано и добавленно в базу новых записей - {count}')
 
+export = input('Подготовить файл CSV с данными? y/n - ')
+if export == 'y':
+    exportDateFile()
+
+else:
+    print('До новых встреч!')
 
 print("\n--- %s seconds ---" % int(time.time() - start_time))

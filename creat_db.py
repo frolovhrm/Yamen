@@ -8,7 +8,7 @@ with sq.connect('yamen.db') as con:
     cur.execute ("""CREATE TABLE IF NOT EXISTS names_files (
     id INTEGER PRIMARY KEY AUTOINCREMENT, 
     name_file text NOT NULL,
-    readed BOOLEAN NOT NULL DEFAULT Falce
+    readed BOOLEAN NOT NULL DEFAULT False
     )""")
 
     cur.execute ("""CREATE TABLE IF NOT EXISTS readed_text (

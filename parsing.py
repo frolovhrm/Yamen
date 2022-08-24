@@ -1,9 +1,9 @@
 import datetime
 
 
-
 def readTextToFelds(str_line, name):
     """ Парсим строку, достаем данные по полям"""
+
     position = 0
     activ = 0.0
     rait = 0.0
@@ -107,23 +107,11 @@ def readTextToFelds(str_line, name):
         position += 1
     ''' Получение даты из имени файла'''
 
-
     date_str = name.split('_')
     datetimeplus = date_str[1]
     date_split = datetimeplus.split('-')
     date_split.pop(-1)
     date_time_str = ' '.join(date_split)
     date_time_obj = datetime.datetime.strptime(date_time_str, '%Y %m %d %H %M %S')
-
-    # def nameToDate(name):
-    #     """ Из имени файла достаем дату """
-    #     date_str = name.split('_')
-    #     datetimeplus = date_str[1]
-    #     date_split = datetimeplus.split('-')
-    #     date_split.pop(-1)
-    #     date_time_str = ' '.join(date_split)
-    #     date_time_obj = datetime.datetime.strptime(date_time_str, '%Y %m %d %H %M %S')
-    #     return date_time_obj
-
 
     return date_time_obj, activ, rait, grate, all_profit, cart_profit, cash_profit, orders, income, commission, mileage, balance, name
