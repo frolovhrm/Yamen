@@ -23,7 +23,8 @@ with sq.connect('yamen.db') as con:
     income INTEGER,
     commission INTEGER,
     mileage INTEGER,
-    balance REAL
+    balance REAL,
+    files_name REAL
     )""")
 
 print('Новая база созданна')
