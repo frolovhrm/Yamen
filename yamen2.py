@@ -13,51 +13,43 @@ screenshetspath = 'C:\PetScaner\Screenshert'
 
 
 def sheckNewFileNameInBase(name):
-    """ Проверяем наличие файла в базе"""
+    """ Проверяет наличие имени файла в базе"""
     with sq.connect('yamen.db') as con:
         cursor = con.cursor()
-        name = f"'{name}'"
         cursor.execute(f"SELECT name_file FROM names_files WHERE name_file = {name}")
         if cursor.fetchone() is None:
             return True
         else:
             return False
 
-
-def readNewFilesIfYandexToBase():
-    """ Собираем список файлов подходящих для сканирования и кладем их в базу"""
-    filelist = []
-    for adress, dirs, files in os.walk(screenshetspath):
-        for file in files:
-            if 'yandex.taximeter' in file:
-                if sheckNewFileNameInBase(file):
-                    filelist.append("'" + file + "'")
-    writeFileNameToSql(filelist)
-
-
-def writeFileNameToSql(list):
-    """ Пишем имя файла в базу"""
-    reques = True
+def writeFileNameToBase(name):
+    """ Записывает имя файла в базу """
     with sq.connect('yamen.db') as con:
         cursor = con.cursor()
-        for n in list:
-            cursor.execute(f"INSERT INTO names_files VALUES(null, {n}, 'False')")
-        print(f'В базу добавлено новых файлов - {len(list)} ')
-        count = cursor.execute("SELECT COUNT (readed) FROM names_files WHERE readed = 'False'")
-        for i in count:
-            print(f'Файлов непрочитанных в базе - {i[0]}')
+        cursor.execute(f"INSERT INTO names_files VALUES(null, {name}, 'True', 'False')")
 
+def readNewFilesIfYandexToBase():
+    """ Отбираем подходящие файлы для сканирования и складывает их имена в базу"""
+    count = 0
+    for adress, dirs, files in os.walk(screenshetspath):
+        for file in files:
+            namefile = "'" + file + "'"
+            if 'yandex.taximeter' in namefile:
+                if sheckNewFileNameInBase(namefile):
+                    writeFileNameToBase(namefile)
+                    count +=1
+    print(f'В базу добавлено новых файлов - {count} ')
 
-def readImagetoText(filename):  # распознает текст в картинке, сохнаняет в строку
-    """ Переводим картинку в текст"""
+def readImagetoText(filename):
+    """ Переводит картинку в строку текста"""
     pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR/tesseract.exe'
     screenshotname = f'{screenshetspath}\{filename}'
     image = cv2.imread(screenshotname)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     config = r'--oem 3 --psm 6'
     string = pytesseract.image_to_string(gray, lang='rus', config=config)
-    string2 = string.split()
-    return string2
+    string_split = string.split()
+    return string_split
 
 
 def nameToDate(name):
@@ -76,39 +68,53 @@ def exportDateFile():
     print('Файл *.csv подготовлен и сохнанен в папку с программой.\nУдачи!')
 
 
-readNewFilesIfYandexToBase()
+readNewFilesIfYandexToBase() # Наполняем базу именами файлов
 
-k = int(input('Сколько файлов прочитать? - '))
-j = 0
-count = 0
-
-with sq.connect('yamen.db') as con:
+with sq.connect('yamen.db') as con: # Проверяем количество доступных для расшифровки файлов
     cursor = con.cursor()
-    while j < k:
-        name = cursor.execute("SELECT id, name_file FROM names_files WHERE readed = 'False' LIMIT 1")
-        for i in name:
-            id = i[0]
-            namefile = str(i[1])
+    cursor.execute("SELECT COUNT (readed) FROM names_files WHERE readed = 'False'")
+    count = cursor.fetchone()
+    notReadFilesOnBase = count[0]
+    print(f'Всего файлов для расшифровки в базе - {notReadFilesOnBase}')
+
+k = int(input('Сколько файлов расшифровать? - '))
+
+if k <= notReadFilesOnBase:
+    j = 0
+    count = 0
+
+    with sq.connect('yamen.db') as con: # Расшифровываем и раскладываем по полям базы
+        cursor = con.cursor()
+        while j < k:
+            cursor.execute("SELECT id, name_file FROM names_files WHERE readed = 'False' AND easyread = 'True' LIMIT 1")
+            name = cursor.fetchone()
+            id = name[0]
+            namefile = name[1]
             stringline = readImagetoText(namefile)
             try:
                 filds = readTextToFelds(stringline, namefile)
                 cursor.execute("INSERT INTO readed_text VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", filds)
+                cursor.execute('UPDATE names_files SET readed = ? WHERE id = ?', (True, id))
+                j += 1
+                count += 1
+
             except ValueError:
                 print(namefile, ' - ', stringline)
-                break
-                k = 0
+                cursor.execute('UPDATE names_files SET easyread = ? WHERE id = ?', (False, id))
+                j += 1
 
-            cursor.execute('UPDATE names_files SET readed = ? WHERE id = ?', (True, id))
+            except IndexError:
+                print(namefile, ' - ', stringline)
+                cursor.execute('UPDATE names_files SET easyread = ? WHERE id = ?', (False, id))
+                j += 1
 
-        count += 1
-        j += 1
-    print(f'Расшифровано и добавленно в базу новых записей - {count}')
+        print(f'Расшифровано и добавленно в базу новых записей - {count}')
 
-export = input('Подготовить файл CSV с данными? y/n - ')
-if export == 'y':
-    exportDateFile()
+        cursor.execute("SELECT COUNT (*) FROM names_files WHERE easyread = 0")
+        count = cursor.fetchone()
+        print(f'Файлов с ошибкой расшифровки в базе - {count[0]}')
 
 else:
-    print('До новых встреч!')
+    print("Столько файлов нет")
 
 print("\n--- %s seconds ---" % int(time.time() - start_time))
