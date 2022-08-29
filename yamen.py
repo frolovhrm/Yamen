@@ -7,8 +7,8 @@ import os
 import pytesseract
 import cv2
 from PIL import Image
-import parsing
-import cheskdouble
+from parsing import readTextToFelds
+from cheskdouble import checkDoubleDate
 
 screenshetspath = 'C:\PetScaner\Screenshert'
 base_name = 'yamen.db'
