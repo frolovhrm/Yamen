@@ -8,13 +8,15 @@ import pytesseract
 import cv2
 from PIL import Image
 from parsing import readTextToFelds
+from cheskdouble import checkDoubleDate
 
 screenshetspath = 'C:\PetScaner\Screenshert'
+base_name = 'yamen.db'
 
 
 def sheckNewFileNameInBase(name):
     """ Проверяет наличие имени файла в базе"""
-    with sq.connect('yamen.db') as con:
+    with sq.connect(base_name) as con:
         cursor = con.cursor()
         cursor.execute(f"SELECT name_file FROM names_files WHERE name_file = {name}")
         if cursor.fetchone() is None:
@@ -24,7 +26,7 @@ def sheckNewFileNameInBase(name):
 
 def writeFileNameToBase(name):
     """ Записывает имя файла в базу """
-    with sq.connect('yamen.db') as con:
+    with sq.connect(base_name) as con:
         cursor = con.cursor()
         cursor.execute(f"INSERT INTO names_files VALUES(null, {name}, 'True', 'False')")
 
@@ -68,9 +70,12 @@ def exportDateFile():
     print('Файл *.csv подготовлен и сохнанен в папку с программой.\nУдачи!')
 
 
+
+
+
 readNewFilesIfYandexToBase() # Наполняем базу именами файлов
 
-with sq.connect('yamen.db') as con: # Проверяем количество доступных для расшифровки файлов
+with sq.connect(base_name) as con: # Проверяем количество доступных для расшифровки файлов
     cursor = con.cursor()
     cursor.execute("SELECT COUNT (readed) FROM names_files WHERE readed = 'False'")
     count = cursor.fetchone()
@@ -83,7 +88,7 @@ if k <= notReadFilesOnBase:
     j = 0
     count = 0
 
-    with sq.connect('yamen.db') as con: # Расшифровываем и раскладываем по полям базы
+    with sq.connect(base_name) as con: # Расшифровываем и раскладываем по полям базы
         cursor = con.cursor()
         while j < k:
             cursor.execute("SELECT id, name_file FROM names_files WHERE readed = 'False' AND easyread = 'True' LIMIT 1")
@@ -116,5 +121,10 @@ if k <= notReadFilesOnBase:
 
 else:
     print("Столько файлов нет")
+
+q = input("\nПроверить задублированные данные в базе? (y/n) - ")
+if q=='y':
+    checkDoubleDate()
+
 
 print("\n--- %s seconds ---" % int(time.time() - start_time))
