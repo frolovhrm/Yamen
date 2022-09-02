@@ -19,6 +19,21 @@ def readTextToFelds(str_line, name):
 
     while position < len(str_line):
 
+        """ Неверный скрин """
+        if str_line[position] == 'История':
+            break
+
+        if str_line[position] == 'Сегодня':
+            if str_line[position + 1] == '0,00Р':
+                break
+            if str_line[position + 1] == '0,00?':
+                break
+            if str_line[position + 1] == '0,00?Р':
+                break
+
+
+
+
         """ Активность, Рейтинг, Уровень """
         if str_line[position] == 'Самозанятый':
             activ = int(str_line[position + 1])

@@ -77,50 +77,55 @@ readNewFilesIfYandexToBase() # Наполняем базу именами фай
 
 with sq.connect(base_name) as con: # Проверяем количество доступных для расшифровки файлов
     cursor = con.cursor()
-    cursor.execute("SELECT COUNT (readed) FROM names_files WHERE readed = 'False'")
+    cursor.execute("SELECT COUNT (readed) FROM names_files WHERE readed = 'False' AND easyread = 'True'")
     count = cursor.fetchone()
     notReadFilesOnBase = count[0]
-    print(f'Всего файлов для расшифровки в базе - {notReadFilesOnBase}')
+    print(f'Всего файлов пригодных для расшифровки в базе - {notReadFilesOnBase}')
 
-k = int(input('Сколько файлов расшифровать? - '))
+if notReadFilesOnBase > 0:
+    k = int(input('Сколько файлов расшифровать? - '))
 
-if k <= notReadFilesOnBase:
-    j = 0
-    count = 0
+    if k <= notReadFilesOnBase:
+        j = 0
+        count = 0
 
-    with sq.connect(base_name) as con: # Расшифровываем и раскладываем по полям базы
-        cursor = con.cursor()
-        while j < k:
-            cursor.execute("SELECT id, name_file FROM names_files WHERE readed = 'False' AND easyread = 'True' LIMIT 1")
-            name = cursor.fetchone()
-            id = name[0]
-            namefile = name[1]
-            stringline = readImagetoText(namefile)
-            try:
-                filds = readTextToFelds(stringline, namefile)
-                cursor.execute("INSERT INTO readed_text VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", filds)
-                cursor.execute('UPDATE names_files SET readed = ? WHERE id = ?', (True, id))
-                j += 1
-                count += 1
+        with sq.connect(base_name) as con: # Расшифровываем и раскладываем по полям базы
+            cursor = con.cursor()
+            while j < k:
+                cursor.execute("SELECT id, name_file FROM names_files WHERE readed = 'False' AND easyread = 'True' LIMIT 1")
+                name = cursor.fetchone()
+                try:
+                    id = name[0]
+                    namefile = name[1]
+                    stringline = readImagetoText(namefile)
+                except TypeError:
+                    print(name)
 
-            except ValueError:
-                print(namefile, ' - ', stringline)
-                cursor.execute('UPDATE names_files SET easyread = ? WHERE id = ?', (False, id))
-                j += 1
+                try:
+                    filds = readTextToFelds(stringline, namefile)
+                    cursor.execute("INSERT INTO readed_text VALUES(null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", filds)
+                    cursor.execute('UPDATE names_files SET readed = ? WHERE id = ?', (True, id))
+                    j += 1
+                    count += 1
 
-            except IndexError:
-                print(namefile, ' - ', stringline)
-                cursor.execute('UPDATE names_files SET easyread = ? WHERE id = ?', (False, id))
-                j += 1
+                except ValueError:
+                    print(namefile, ' - ', stringline)
+                    cursor.execute('UPDATE names_files SET easyread = ? WHERE id = ?', (False, id))
+                    j += 1
 
-        print(f'Расшифровано и добавленно в базу новых записей - {count}')
+                except IndexError:
+                    print(namefile, ' - ', stringline)
+                    cursor.execute('UPDATE names_files SET easyread = ? WHERE id = ?', (False, id))
+                    j += 1
 
-        cursor.execute("SELECT COUNT (*) FROM names_files WHERE easyread = 0")
-        count = cursor.fetchone()
-        print(f'Файлов с ошибкой расшифровки в базе - {count[0]}')
+            print(f'Расшифровано и добавленно в базу новых записей - {count}')
 
-else:
-    print("Столько файлов нет")
+            cursor.execute("SELECT COUNT (*) FROM names_files WHERE easyread = 0")
+            count = cursor.fetchone()
+            print(f'Файлов с ошибкой расшифровки в базе - {count[0]}')
+
+    else:
+        print("Столько файлов нет")
 
 q = input("\nПроверить задублированные данные в базе? (y/n) - ")
 if q=='y':

@@ -13,6 +13,7 @@ with sq.connect('yamen.db') as con:
     )""")
 
     cur.execute ("""CREATE TABLE IF NOT EXISTS readed_text (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     date TEXT NOT NULL,
     activ INTEGER,
     rait REAL,
