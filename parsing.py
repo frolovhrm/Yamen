@@ -24,6 +24,8 @@ def readTextToFelds(str_line, name):
             break
 
         if str_line[position] == 'Сегодня':
+            if str_line[position + 1] == '0,00':
+                break
             if str_line[position + 1] == '0,00Р':
                 break
             if str_line[position + 1] == '0,00?':
@@ -92,7 +94,7 @@ def readTextToFelds(str_line, name):
                 if str_line[position + 4] == 'О':
                     orders = 0
                 else:
-                    orders = 99999
+                    orders = 99999 # Заглушка
 
             """ Комиссия """
             # commission = str_line[position + 7]
@@ -108,7 +110,7 @@ def readTextToFelds(str_line, name):
                 if mileage_str == 'О':
                     mileage = 0
                 else:
-                    mileage = 99999
+                    mileage = 99999 # Заглушка
 
         if str_line[position] == 'Баланс':
             if len(str_line[position + 1]) == 1:

@@ -31,5 +31,5 @@ def checkDoubleDate():
                 break
 
 
-
-# checkDoubleDate()
+if __name__ == '__main__':
+    checkDoubleDate()

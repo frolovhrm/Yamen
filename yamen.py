@@ -9,6 +9,7 @@ import cv2
 from PIL import Image
 from parsing import readTextToFelds
 from cheskdouble import checkDoubleDate
+from write_to_csv import writeToCsv
 
 screenshetspath = 'C:\PetScaner\Screenshert'
 base_name = 'yamen.db'
@@ -24,11 +25,13 @@ def sheckNewFileNameInBase(name):
         else:
             return False
 
+
 def writeFileNameToBase(name):
     """ Записывает имя файла в базу """
     with sq.connect(base_name) as con:
         cursor = con.cursor()
         cursor.execute(f"INSERT INTO names_files VALUES(null, {name}, 'True', 'False')")
+
 
 def readNewFilesIfYandexToBase():
     """ Отбираем подходящие файлы для сканирования и складывает их имена в базу"""
@@ -39,8 +42,9 @@ def readNewFilesIfYandexToBase():
             if 'yandex.taximeter' in namefile:
                 if sheckNewFileNameInBase(namefile):
                     writeFileNameToBase(namefile)
-                    count +=1
+                    count += 1
     print(f'В базу добавлено новых файлов - {count} ')
+
 
 def readImagetoText(filename):
     """ Переводит картинку в строку текста"""
@@ -65,17 +69,9 @@ def nameToDate(name):
     return date_time_obj
 
 
-def exportDateFile():
-    """ Получение данных и сохнанение CSV """
-    print('Файл *.csv подготовлен и сохнанен в папку с программой.\nУдачи!')
+readNewFilesIfYandexToBase()  # Заносим в базу имена пригодных файлов с данными
 
-
-
-
-
-readNewFilesIfYandexToBase() # Наполняем базу именами файлов
-
-with sq.connect(base_name) as con: # Проверяем количество доступных для расшифровки файлов
+with sq.connect(base_name) as con:  # Проверяем количество доступных для расшифровки файлов
     cursor = con.cursor()
     cursor.execute("SELECT COUNT (readed) FROM names_files WHERE readed = 'False' AND easyread = 'True'")
     count = cursor.fetchone()
@@ -89,10 +85,11 @@ if notReadFilesOnBase > 0:
         j = 0
         count = 0
 
-        with sq.connect(base_name) as con: # Расшифровываем и раскладываем по полям базы
+        with sq.connect(base_name) as con:  # Расшифровываем и раскладываем по полям базы
             cursor = con.cursor()
             while j < k:
-                cursor.execute("SELECT id, name_file FROM names_files WHERE readed = 'False' AND easyread = 'True' LIMIT 1")
+                cursor.execute(
+                    "SELECT id, name_file FROM names_files WHERE readed = 'False' AND easyread = 'True' LIMIT 1")
                 name = cursor.fetchone()
                 try:
                     id = name[0]
@@ -102,11 +99,13 @@ if notReadFilesOnBase > 0:
                     print(name)
 
                 try:
-                    filds = readTextToFelds(stringline, namefile)
-                    cursor.execute("INSERT INTO readed_text VALUES(null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", filds)
-                    cursor.execute('UPDATE names_files SET readed = ? WHERE id = ?', (True, id))
-                    j += 1
-                    count += 1
+                    fields = readTextToFelds(stringline, namefile)
+                    if fields[4] > 0:
+                        cursor.execute("INSERT INTO readed_text VALUES(null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                                       fields)
+                        cursor.execute('UPDATE names_files SET readed = ? WHERE id = ?', (True, id))
+                        j += 1
+                        count += 1
 
                 except ValueError:
                     print(namefile, ' - ', stringline)
@@ -128,8 +127,11 @@ if notReadFilesOnBase > 0:
         print("Столько файлов нет")
 
 q = input("\nПроверить задублированные данные в базе? (y/n) - ")
-if q=='y':
+if q == 'y':
     checkDoubleDate()
 
+q = input("\nСохранить данные в 'yamenbase.csv' файл? (y/n) - ")
+if q == 'y':
+    writeToCsv()
 
 print("\n--- %s seconds ---" % int(time.time() - start_time))
