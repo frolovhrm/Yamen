@@ -14,7 +14,7 @@ with sq.connect('yamen.db') as con:
 
     cur.execute ("""CREATE TABLE IF NOT EXISTS readed_text (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    date TEXT NOT NULL,
+    date TEXT,
     activ INTEGER,
     rait REAL,
     grate INTEGER,
@@ -26,7 +26,8 @@ with sq.connect('yamen.db') as con:
     commission INTEGER,
     mileage INTEGER,
     balance REAL,
-    files_name REAL
+    files_name REAL,
+    verified BOOLEAN NOT NULL DEFAULT False     
     )""")
 
 print('Новая база созданна')
