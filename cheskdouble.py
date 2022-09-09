@@ -72,11 +72,11 @@ def checkDoubleDate():
                 print(f'{id_} - пометили')
             #     print(duble_date)
             #
-            # print(activ, rait, grate, all_profit, cash_profit, cart_profit,  orders, income, commission, mileage, balance)
+            print(duble_date, activ, rait, grate, all_profit, cash_profit, cart_profit,  orders, income, commission, mileage, balance)
 
             # Пишем данные в базу новой строкой
-        s = f"INSERT INTO true_date VALUES(null, '{duble_date}', {activ}, {rait}, {grate}, {all_profit}, {cash_profit}, {cart_profit}, {orders}, {income}, {commission}, {mileage}, {balance})"
-        cursor.execute(s)
+            s = f"INSERT INTO true_date VALUES(null, '{duble_date}', {activ}, {rait}, {grate}, {all_profit}, {cash_profit}, {cart_profit}, {orders}, {income}, {commission}, {mileage}, {balance})"
+            cursor.execute(s)
 
 
 if __name__ == '__main__':
