@@ -19,53 +19,65 @@ def checkDoubleDate():
     commission = 0.0
     mileage = 0
     balance = 0.0
-
-
-
-
+    global duble_date
 
     with sq.connect(base_name) as con:
         cursor = con.cursor()
         cursor.execute(
-            "SELECT id, date(date), activ, rait, grate, all_profit, cart_profit, cash_profit, orders, income, commission, mileage, balance, COUNT(*)  FROM readed_text WHERE verified = 0  GROUP BY date(date) HAVING COUNT(*) > 1")
-        listnames = cursor.fetchone()
-        # for i in listnames:
-        #     print(i)
-        print(listnames)
-        for i in listnames:
-            if activ < i[2]:
-                activ < i[2]
-            if rait < i[3]:
-                rait = i[3]
-            if grate < i[4]:
-                grate = i[4]
-            if all_profit < i[5]:
-                all_profit = i[5]
-            if cart_profit < i[6]:
-                cart_profit = i[6]
-            if cash_profit < i[7]:
-                cash_profit = i[7]
-            if orders < i[8]:
-                orders = i[8]
-            if income < i[9]:
-                income = i[9]
-            if commission < i[10]:
-                commission = i[10]
-            if mileage < i[11]:
-                mileage = i[11]
-            if balance < i[12]:
-                balance = i[12]
+            "SELECT date(date), COUNT(*)  FROM readed_text WHERE verified = 0  GROUP BY date(date) HAVING COUNT(*) > 1")
+        listcount = cursor.fetchall()
+        # print(listcount) # Собрали список всех дат и количество записей по ним
+        for i in listcount:
+            duble_date = i[0]
+            count = i[1]
+            s = f"SELECT id FROM readed_text WHERE date(date) = '{duble_date}'"
+            cursor.execute(s)
+            list_id = cursor.fetchall()
+            # print(list_id) # Собрали список всех ID задублированых дат
+            print(duble_date, count)
 
+            for num in list_id: # Берем список ID от одной даты и сливаем все в один файл
+                id_ = int(num[0])
+                s = f"SELECT activ, rait, grate, all_profit, cash_profit, cart_profit, orders, income, commission, mileage, balance FROM readed_text WHERE id = {id_}"
+                cursor.execute(s)
+                fields = cursor.fetchone()
+                # print(fields)
+
+                if activ < int(fields[0]):
+                    activ = fields[0]
+                if rait < fields[1]:
+                    rait = fields[1]
+                if grate < fields[2]:
+                    grate = fields[2]
+                if all_profit < fields[3]:
+                    all_profit = fields[3]
+                if cash_profit < fields[4]:
+                    cash_profit = fields[4]
+                if cart_profit < fields[5]:
+                    cart_profit = fields[5]
+                if orders < fields[6]:
+                    orders = fields[6]
+                if income < fields[7]:
+                    income = fields[7]
+                if commission < fields[8]:
+                    commission = fields[8]
+                if mileage < fields[9]:
+                    mileage = fields[9]
+                if balance < fields[10]:
+                    balance = fields[10]
+
+                # помечаем запись как проверенную
+                s = f"UPDATE readed_text SET verified = 1 WHERE id = {id_}"
+                cursor.execute(s)
+                print(f'{id_} - пометили')
+            #     print(duble_date)
+            #
+            # print(activ, rait, grate, all_profit, cash_profit, cart_profit,  orders, income, commission, mileage, balance)
+
+            # Пишем данные в базу новой строкой
+        s = f"INSERT INTO true_date VALUES(null, '{duble_date}', {activ}, {rait}, {grate}, {all_profit}, {cash_profit}, {cart_profit}, {orders}, {income}, {commission}, {mileage}, {balance})"
+        cursor.execute(s)
 
 
 if __name__ == '__main__':
     checkDoubleDate()
-
-    # cursor.execute(
-    #     "SELECT id, date(date), time(date), strftime('%s', date), COUNT(*)  FROM readed_text WHERE verified = 0  GROUP BY date(date) HAVING COUNT(*) > 1")
-    #     # first_group_ID = listnames[0]
-    #     # date = listnames[1]
-    #     # full_time = listnames[2]
-    #     # hour = int(listnames[3])
-    #     # count_duble_fiels = int(listnames[4])
-    #     # print(first_group_ID, date, full_time, hour, count_duble_fiels)

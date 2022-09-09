@@ -30,4 +30,21 @@ with sq.connect('yamen.db') as con:
     verified BOOLEAN NOT NULL DEFAULT False     
     )""")
 
+    cur.execute ("""CREATE TABLE IF NOT EXISTS true_date (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT,
+    activ INTEGER,
+    rait REAL,
+    grate INTEGER,
+    all_profit REAL,
+    cash_profit REAL,
+    cart_profit REAL,
+    orders INTEGER,
+    income INTEGER,
+    commission INTEGER,
+    mileage INTEGER,
+    balance REAL
+   
+    )""")
+
 print('Новая база созданна')

@@ -101,7 +101,7 @@ if notReadFilesOnBase > 0:
                 try:
                     fields = readTextToFelds(stringline, namefile)
                     if fields[4] > 0:
-                        cursor.execute("INSERT INTO readed_text VALUES(null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                        cursor.execute("INSERT INTO readed_text VALUES(null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0);",
                                        fields)
                         cursor.execute('UPDATE names_files SET readed = ? WHERE id = ?', (True, id))
                         j += 1
