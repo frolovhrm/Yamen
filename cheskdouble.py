@@ -20,20 +20,23 @@ def checkDoubleDate():
     mileage = 0
     balance = 0.0
     global duble_date
-
+    print
     with sq.connect(base_name) as con:
         cursor = con.cursor()
         cursor.execute(
             "SELECT date(date), COUNT(*)  FROM readed_text WHERE verified = 0  GROUP BY date(date) HAVING COUNT(*) > 1")
         listcount = cursor.fetchall()
-        # print(listcount) # Собрали список всех дат и количество записей по ним
+        if listcount == '':
+            print('Задвоений не обнаружено')
+            return
+        print(listcount) # Собрали список всех дат и количество записей по ним
         for i in listcount:
             duble_date = i[0]
             count = i[1]
             s = f"SELECT id FROM readed_text WHERE date(date) = '{duble_date}'"
             cursor.execute(s)
             list_id = cursor.fetchall()
-            # print(list_id) # Собрали список всех ID задублированых дат
+            print(list_id) # Собрали список всех ID задублированых дат
             print(duble_date, count)
 
             for num in list_id: # Берем список ID от одной даты и сливаем все в один файл
