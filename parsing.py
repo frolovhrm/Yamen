@@ -23,6 +23,9 @@ def readTextToFelds(str_line, name):
         if str_line[position] == 'История':
             break
 
+        if str_line[position] == 'За' and str_line[position + 1] == 'неделю':
+            break
+
         if str_line[position] == 'Сегодня':
             if str_line[position + 1] == '0,00':
                 break
@@ -49,28 +52,31 @@ def readTextToFelds(str_line, name):
 
         if str_line[position] == 'Сегодня':
             """ Всего выручка """
-            if len(str_line[position + 1]) == 1:
-                all_profit_str = str_line[position + 1] + str_line[position + 2]
-            else:
-                all_profit_str = str_line[position + 1]
-            try:
-                all_profit_str = all_profit_str[:-1]
-                all_profit_str = all_profit_str.replace(',', '.')
-                all_profit = float(all_profit_str)
-            except:
-                all_profit_str = all_profit_str[:-2]
-                all_profit_str = all_profit_str.replace(',', '.')
-                all_profit = float(all_profit_str)
-
-            """ Выручка карта """
-            if str_line[position + 3] == '>':
-                if len(str_line[position + 4]) == 1:
-                    cart_profit_str = str_line[position + 4] + str_line[position + 5]
+            k = 0 # временный плюс к позиции
+            if str_line[position + 1] != '›': # если в позии стоит символ идем дальше
+                k = 1
+                if len(str_line[position + 1 ]) == 1: # если сиввол только один, добавляем из следующей позиции
+                    all_profit_str = str_line[position + 1] + str_line[position + 2]
                 else:
-                    cart_profit_str = str_line[position + 4]
-                cart_profit_str = cart_profit_str[:-1]
-                cart_profit_str = cart_profit_str.replace(',', '.')
-                cart_profit = float(cart_profit_str)
+                    all_profit_str = str_line[position + 1]
+                try:
+                    all_profit_str = all_profit_str[:-1]
+                    all_profit_str = all_profit_str.replace(',', '.')
+                    all_profit = float(all_profit_str)
+                except:
+                    all_profit_str = all_profit_str[:-2]
+                    all_profit_str = all_profit_str.replace(',', '.')
+                    all_profit = float(all_profit_str)
+
+                """ Выручка карта """
+                if str_line[position + 3] == '>':
+                    if len(str_line[position + 4]) == 1:
+                        cart_profit_str = str_line[position + 4] + str_line[position + 5]
+                    else:
+                        cart_profit_str = str_line[position + 4]
+                    cart_profit_str = cart_profit_str[:-1]
+                    cart_profit_str = cart_profit_str.replace(',', '.')
+                    cart_profit = float(cart_profit_str)
 
         """ Выручка наличные """
         if str_line[position] == 'карта':

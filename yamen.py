@@ -2,6 +2,7 @@ import time
 import datetime
 import sqlite3 as sq
 
+
 start_time = time.time()
 import os
 import pytesseract
@@ -87,6 +88,7 @@ if notReadFilesOnBase > 0:
 
         with sq.connect(base_name) as con:  # Расшифровываем и раскладываем по полям базы
             cursor = con.cursor()
+
             while j < k:
                 cursor.execute(
                     "SELECT id, name_file FROM names_files WHERE readed = 'False' AND easyread = 'True' LIMIT 1")
@@ -99,13 +101,15 @@ if notReadFilesOnBase > 0:
                     print(name)
 
                 try:
-                    fields = readTextToFelds(stringline, namefile)
-                    # if fields[4] > 0:
-                    cursor.execute("INSERT INTO readed_text VALUES(null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0);",
-                                   fields)
-                    cursor.execute('UPDATE names_files SET readed = ? WHERE id = ?', (True, id))
-                    j += 1
-                    count += 1
+
+                        fields = readTextToFelds(stringline, namefile)
+                        # if fields[4] > 0:
+                        cursor.execute("INSERT INTO readed_text VALUES(null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0);",
+                                       fields)
+                        cursor.execute('UPDATE names_files SET readed = ? WHERE id = ?', (True, id))
+                        j += 1
+                        count += 1
+
 
                 except ValueError:
                     print(namefile, ' - ', stringline)
@@ -124,14 +128,15 @@ if notReadFilesOnBase > 0:
             print(f'Файлов с ошибкой расшифровки в базе - {count[0]}')
 
 
+
     else:
         print("Столько файлов нет")
 
-q = input("\nПроверить задублированные данные в базе? (y/n) - ")
+q = input("\nПроверить задублированные данные в базе? (y - Да) - ")
 if q == 'y':
     checkDoubleDate()
 
-q = input("\nЭкспортировать данные в 'csv' файл? (y/n) - ")
+q = input("\nЭкспортировать данные в 'csv' файл? (y - Да) - ")
 if q == 'y':
     writeToCsv()
 
