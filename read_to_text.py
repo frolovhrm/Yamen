@@ -26,14 +26,15 @@ mileage = 0
 balance = 0.0
 
 list_file = ['Screenshot_2022-07-28-21-35-07-694_ru.yandex.taximeter.jpg',
-            'Screenshot_2022-07-28-21-35-07-694_ru.yandex.taximeter.jpg',
-            'Screenshot_2021-08-27-21-12-40-541_ru.yandex.taximeter.jpg',
-            'Screenshot_2022-07-29-22-21-52-031_ru.yandex.taximeter.jpg',
-            'Screenshot_2022-07-29-22-21-57-130_ru.yandex.taximeter.jpg',
-            'Screenshot_2022-07-31-14-52-12-819_ru.yandex.taximeter.jpg',
-            'Screenshot_2022-07-31-14-52-17-991_ru.yandex.taximeter.jpg',
-            'Screenshot_2022-08-11-23-27-21-520_ru.yandex.taximeter.jpg',
-            'Screenshot_2022-08-11-23-27-26-422_ru.yandex.taximeter.jpg']
+             'Screenshot_2022-07-28-21-35-07-694_ru.yandex.taximeter.jpg',
+             'Screenshot_2021-08-27-21-12-40-541_ru.yandex.taximeter.jpg',
+             'Screenshot_2022-07-29-22-21-52-031_ru.yandex.taximeter.jpg',
+             'Screenshot_2022-07-29-22-21-57-130_ru.yandex.taximeter.jpg',
+             'Screenshot_2022-07-31-14-52-12-819_ru.yandex.taximeter.jpg',
+             'Screenshot_2022-07-31-14-52-17-991_ru.yandex.taximeter.jpg',
+             'Screenshot_2022-08-11-23-27-21-520_ru.yandex.taximeter.jpg',
+             'Screenshot_2022-08-11-23-27-26-422_ru.yandex.taximeter.jpg']
+
 
 def nameToDate(name):
     """ Из имени файла достаем дату """
@@ -45,6 +46,7 @@ def nameToDate(name):
     date_time_obj = datetime.datetime.strptime(date_time_str, '%Y %m %d %H %M %S')
     # print(date_time_obj )
     return date_time_obj
+
 
 # with sq.connect(base_name) as con:
 #     cursor = con.cursor()
@@ -68,9 +70,7 @@ for filename in (list_file):
     if date < '2022-04-04 00-00-00':
         print(readTextToFelds(string_split, filename))
     else:
-     print('Now type file')
-
-
+        print('Now type file')
 
 #     string_split.append(string.split())
 #

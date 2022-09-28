@@ -36,9 +36,6 @@ def readTextToFelds(str_line, name):
             if str_line[position + 1] == '0,00?Р':
                 break
 
-
-
-
         """ Активность, Рейтинг, Уровень """
         if str_line[position] == 'Самозанятый':
             activ = int(str_line[position + 1])
@@ -52,10 +49,10 @@ def readTextToFelds(str_line, name):
 
         if str_line[position] == 'Сегодня':
             """ Всего выручка """
-            k = 0 # временный плюс к позиции
-            if str_line[position + 1] != '›': # если в позии стоит символ идем дальше
+            k = 0  # временный плюс к позиции
+            if str_line[position + 1] != '›':  # если в позии стоит символ идем дальше
                 k = 1
-                if len(str_line[position + 1 ]) == 1: # если сиввол только один, добавляем из следующей позиции
+                if len(str_line[position + 1]) == 1:  # если сиввол только один, добавляем из следующей позиции
                     all_profit_str = str_line[position + 1] + str_line[position + 2]
                 else:
                     all_profit_str = str_line[position + 1]
@@ -100,7 +97,7 @@ def readTextToFelds(str_line, name):
                 if str_line[position + 4] == 'О':
                     orders = 0
                 else:
-                    orders = 99999 # Заглушка
+                    orders = 99999  # Заглушка
 
             """ Комиссия """
             # commission = str_line[position + 7]
@@ -116,7 +113,7 @@ def readTextToFelds(str_line, name):
                 if mileage_str == 'О':
                     mileage = 0
                 else:
-                    mileage = 99999 # Заглушка
+                    mileage = 99999  # Заглушка
 
         if str_line[position] == 'Баланс':
             if len(str_line[position + 1]) == 1:
