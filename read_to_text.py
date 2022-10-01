@@ -5,12 +5,15 @@ import sqlite3 as sq
 import time
 from tqdm import tqdm
 from parsing import readTextToFelds
+from parsing2 import readTextToFelds2
+
 import datetime
 
 screenshetspath = 'C:\PetScaner\Screenshert//'
 base_name = 'yamen.db'
 list_file = []
 string_split = []
+string_split_list = []
 
 position = 0
 activ = 0.0
@@ -25,16 +28,6 @@ commission = 0
 mileage = 0
 balance = 0.0
 
-list_file = ['Screenshot_2022-07-28-21-35-07-694_ru.yandex.taximeter.jpg',
-             'Screenshot_2022-07-28-21-35-07-694_ru.yandex.taximeter.jpg',
-             'Screenshot_2021-08-27-21-12-40-541_ru.yandex.taximeter.jpg',
-             'Screenshot_2022-07-29-22-21-52-031_ru.yandex.taximeter.jpg',
-             'Screenshot_2022-07-29-22-21-57-130_ru.yandex.taximeter.jpg',
-             'Screenshot_2022-07-31-14-52-12-819_ru.yandex.taximeter.jpg',
-             'Screenshot_2022-07-31-14-52-17-991_ru.yandex.taximeter.jpg',
-             'Screenshot_2022-08-11-23-27-21-520_ru.yandex.taximeter.jpg',
-             'Screenshot_2022-08-11-23-27-26-422_ru.yandex.taximeter.jpg']
-
 
 def nameToDate(name):
     """ Из имени файла достаем дату """
@@ -44,20 +37,21 @@ def nameToDate(name):
     date_split.pop(-1)
     date_time_str = ' '.join(date_split)
     date_time_obj = datetime.datetime.strptime(date_time_str, '%Y %m %d %H %M %S')
-    # print(date_time_obj )
     return date_time_obj
 
+# list_file = ['Screenshot_2021-10-09-23-13-58-584_ru.yandex.taximeter.jpg']
 
-# with sq.connect(base_name) as con:
-#     cursor = con.cursor()
-#     cursor.execute(f"SELECT name_file FROM names_files WHERE easyread = 0")
-#     list = cursor.fetchall()
-#     for i in list:
-#         list_file.append(i[0])
+with sq.connect(base_name) as con:
+    cursor = con.cursor()
+    cursor.execute(f"SELECT name_file FROM names_files WHERE easyread = 0")
+    list = cursor.fetchall()
+    for i in list:
+        list_file.append(i[0])
 
 # for filename in tqdm(list_file):
 
 for filename in (list_file):
+    # print(filename)
     pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR/tesseract.exe'
     screenshotname = screenshetspath + filename
     image = cv2.imread(screenshotname)
@@ -66,14 +60,11 @@ for filename in (list_file):
     string = pytesseract.image_to_string(gray, lang='rus', config=config)
     string_split = string.split()
     date = str(nameToDate(filename))
-    print(date)
     if date < '2022-04-04 00-00-00':
-        print(readTextToFelds(string_split, filename))
+        fields = readTextToFelds(string_split, filename)
     else:
-        print('Now type file')
+        fields = readTextToFelds2(string_split, filename)
+    string_split_list.append(fields)
 
-#     string_split.append(string.split())
-#
-#
-# for i in string_split:
-#     print(i)
+for i in string_split_list:
+    print(i)

@@ -8,8 +8,10 @@ import pytesseract
 import cv2
 from PIL import Image
 from parsing import readTextToFelds
+from parsing2 import readTextToFelds2
 from cheskdouble import checkDoubleDate
 from write_to_csv import writeToCsv
+from tqdm import tqdm
 
 screenshetspath = 'C:\PetScaner\Screenshert'
 base_name = 'yamen.db'
@@ -88,7 +90,8 @@ if notReadFilesOnBase > 0:
         with sq.connect(base_name) as con:  # Расшифровываем и раскладываем по полям базы
             cursor = con.cursor()
 
-            while j < k:
+            # while j < k:
+            for i in tqdm(range(k)):
                 cursor.execute(
                     "SELECT id, name_file FROM names_files WHERE readed = 'False' AND easyread = 'True' LIMIT 1")
                 name = cursor.fetchone()
@@ -100,27 +103,30 @@ if notReadFilesOnBase > 0:
                     print(name)
 
                 try:
-
-                    fields = readTextToFelds(stringline, namefile)
-                    # if fields[4] > 0:
+                    date = str(nameToDate(namefile))
+                    if date < '2022-04-04 00-00-00':
+                        fields = readTextToFelds(stringline, namefile)
+                    else:
+                        fields = readTextToFelds2(stringline, namefile)
+                        # if fields[4] > 0:
                     cursor.execute("INSERT INTO readed_text VALUES(null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0);",
                                    fields)
                     cursor.execute('UPDATE names_files SET readed = ? WHERE id = ?', (True, id))
-                    j += 1
+                    # j += 1
                     count += 1
 
 
                 except ValueError:
                     print(namefile, ' - ', stringline)
                     cursor.execute('UPDATE names_files SET easyread = ? WHERE id = ?', (False, id))
-                    j += 1
+                    # j += 1
 
                 except IndexError:
                     print(namefile, ' - ', stringline)
                     cursor.execute('UPDATE names_files SET easyread = ? WHERE id = ?', (False, id))
-                    j += 1
+                    # j += 1
 
-            print(f'Расшифровано и добавленно в базу новых записей - {count}')
+            print(f'\nРасшифровано и добавленно в базу новых записей - {count}')
 
             cursor.execute("SELECT COUNT (*) FROM names_files WHERE easyread = 0")
             count = cursor.fetchone()

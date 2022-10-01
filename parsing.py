@@ -1,4 +1,6 @@
 import datetime
+from tqdm import tqdm
+import re
 
 
 def readTextToFelds(str_line, name):
@@ -16,7 +18,7 @@ def readTextToFelds(str_line, name):
     commission = 0
     mileage = 0
     balance = 0.0
-
+    # print(str_line)
     while position < len(str_line):
 
         """ Неверный скрин """
@@ -49,55 +51,55 @@ def readTextToFelds(str_line, name):
 
         if str_line[position] == 'Сегодня':
             """ Всего выручка """
-            k = 0  # временный плюс к позиции
-            if str_line[position + 1] != '›':  # если в позии стоит символ идем дальше
-                k = 1
-                if len(str_line[position + 1]) == 1:  # если сиввол только один, добавляем из следующей позиции
-                    all_profit_str = str_line[position + 1] + str_line[position + 2]
-                else:
-                    all_profit_str = str_line[position + 1]
-                try:
-                    all_profit_str = all_profit_str[:-1]
-                    all_profit_str = all_profit_str.replace(',', '.')
-                    all_profit = float(all_profit_str)
-                except:
-                    all_profit_str = all_profit_str[:-2]
-                    all_profit_str = all_profit_str.replace(',', '.')
-                    all_profit = float(all_profit_str)
+            all_profit_str = str_line[position + 1] + str_line[position + 2] + str_line[position + 3]
+            try:
+                all_profit_str = all_profit_str.replace(',', '.')
+                # print(all_profit_str)
+                all_profit_str_num = re.findall(r'\d*\.\d*', all_profit_str)
+                # print(all_profit_str_num)
+                all_profit = float(all_profit_str_num[0])
+            except:
 
-                """ Выручка карта """
-                if str_line[position + 3] == '>':
-                    if len(str_line[position + 4]) == 1:
-                        cart_profit_str = str_line[position + 4] + str_line[position + 5]
-                    else:
-                        cart_profit_str = str_line[position + 4]
-                    cart_profit_str = cart_profit_str[:-1]
-                    cart_profit_str = cart_profit_str.replace(',', '.')
-                    cart_profit = float(cart_profit_str)
+                all_profit = 999999999999
+                print(all_profit)
+
+            """ Выручка карта """
+        if str_line[position] == 'карта':
+
+            cart_profit_str = str_line[position - 3] + str_line[position - 2] + str_line[position - 1]
+            try:
+                cart_profit_str = cart_profit_str.replace(',', '.')
+                # print(cart_profit_str)
+                cart_profit_str_num = re.findall(r'\d*\.\d*', cart_profit_str)
+                # print(cart_profit_str_num)
+                cart_profit = float(cart_profit_str_num[0])
+            except:
+                print(f'\nError!!! Card')
 
         """ Выручка наличные """
         if str_line[position] == 'карта':
             if str_line[position + 1] != 'водителя':
                 if len(str_line[position + 2]) == 1:
-                    cash_profit_str = str_line[position + 2] + str_line[position + 3]
+                    cash_profit_str = str_line[position + 2] + str_line[position + 3] + str_line[position + 4]
                 else:
                     cash_profit_str = str_line[position + 2]
-                cash_profit_str = cash_profit_str[:-1]
+
                 cash_profit_str = cash_profit_str.replace(',', '.')
-                cash_profit = float(cash_profit_str)
+                cash_profit_str_num = re.findall(r'\d*\.\d*', cash_profit_str)
+                # print(cash_profit_str1)
+                # cash_profit_str = cash_profit_str[:-1]
+                # cash_profit_str = cash_profit_str.replace(',', '.')
+                # print()
+                cash_profit = float(cash_profit_str_num[0])
 
         """ Заказов """
-        if str_line[position] == 'заказы':
+        if str_line[position] == 'заказов':
+            # print(str_line[position - 1])
             try:
-                if str_line[position + 3] == '›':
-                    orders = int(str_line[position + 4])
-                else:
-                    orders = int(str_line[position + 3])
-            except ValueError:
-                if str_line[position + 4] == 'О':
-                    orders = 0
-                else:
-                    orders = 99999  # Заглушка
+                orders = int(str_line[position - 1])
+
+            except:
+                orders = 99999  # Заглушка
 
             """ Комиссия """
             # commission = str_line[position + 7]
@@ -116,13 +118,17 @@ def readTextToFelds(str_line, name):
                     mileage = 99999  # Заглушка
 
         if str_line[position] == 'Баланс':
-            if len(str_line[position + 1]) == 1:
-                balance_str = str_line[position + 1] + str_line[position + 2]
-            else:
-                balance_str = str_line[position + 1]
-            balance_str = balance_str[:-1]
-            balance_str = balance_str.replace(',', '.')
-            balance = float(balance_str)
+            if position < len(str_line) - 4:
+                try:
+                    if len(str_line[position + 1]) == 1:
+                        balance_str = str_line[position + 1] + str_line[position + 2]
+                    else:
+                        balance_str = str_line[position + 1]
+                    balance_str = balance_str[:-1]
+                    balance_str = balance_str.replace(',', '.')
+                    balance = float(balance_str)
+                except:
+                    print(f'balanse - {name}')
 
         position += 1
     ''' Получение даты из имени файла'''
