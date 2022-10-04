@@ -1,8 +1,6 @@
 import time
 import datetime
 import sqlite3 as sq
-
-start_time = time.time()
 import os
 import pytesseract
 import cv2
@@ -13,7 +11,8 @@ from cheskdouble import checkDoubleDate
 from write_to_csv import writeToCsv
 from tqdm import tqdm
 
-screenshetspath = 'C:\PetScaner\Screenshert'
+start_time = time.time()
+screenshotspath = 'C:\PetScaner\Screenshert'
 base_name = 'yamen.db'
 
 
@@ -38,7 +37,7 @@ def writeFileNameToBase(name):
 def readNewFilesIfYandexToBase():
     """ Отбираем подходящие файлы для сканирования и складывает их имена в базу"""
     count = 0
-    for adress, dirs, files in os.walk(screenshetspath):
+    for adress, dirs, files in os.walk(screenshotspath):
         for file in files:
             namefile = "'" + file + "'"
             if 'yandex.taximeter' in namefile:
@@ -51,7 +50,7 @@ def readNewFilesIfYandexToBase():
 def readImagetoText(filename):
     """ Переводит картинку в строку текста"""
     pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR/tesseract.exe'
-    screenshotname = f'{screenshetspath}\{filename}'
+    screenshotname = f'{screenshotspath}\{filename}'
     image = cv2.imread(screenshotname)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     config = r'--oem 3 --psm 6'

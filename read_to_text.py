@@ -9,7 +9,7 @@ from parsing2 import readTextToFelds2
 
 import datetime
 
-screenshetspath = 'C:\PetScaner\Screenshert//'
+screenshetspath = 'C:\PetScaner\Screenshort//'
 base_name = 'yamen.db'
 list_file = []
 string_split = []
@@ -53,7 +53,7 @@ with sq.connect(base_name) as con:
 for filename in (list_file):
     # print(filename)
     pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR/tesseract.exe'
-    screenshotname = screenshetspath + filename
+    screenshotname = screenshotspath + filename
     image = cv2.imread(screenshotname)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     config = r'--oem 3 --psm 6'
