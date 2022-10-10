@@ -6,13 +6,15 @@ with sq.connect('yamen_ob.db') as con:
     cur.execute("""CREATE TABLE IF NOT EXISTS Screen (
     id INTEGER PRIMARY KEY AUTOINCREMENT, 
     name text NOT NULL,
-    required BOOLEAN NOT NULL DEFAULT True,
-    readed BOOLEAN NOT NULL DEFAULT False
+    required INTEGER NOT NULL DEFAULT 0,
+    readed BOOLEAN NOT NULL DEFAULT False,
+    string text
     )""")
 
     cur.execute("""CREATE TABLE IF NOT EXISTS Fields (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     date TEXT,
+    time TEXT,
     activ INTEGER,
     rait REAL,
     grate INTEGER,

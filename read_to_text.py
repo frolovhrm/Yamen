@@ -9,7 +9,7 @@ from parsing2 import readTextToFelds2
 
 import datetime
 
-screenshetspath = 'C:\PetScaner\Screenshort//'
+screenshetspath = 'C:\PetScaner\Screenshort/'
 base_name = 'yamen.db'
 list_file = []
 string_split = []
@@ -39,21 +39,21 @@ def nameToDate(name):
     date_time_obj = datetime.datetime.strptime(date_time_str, '%Y %m %d %H %M %S')
     return date_time_obj
 
-# list_file = ['Screenshot_2021-10-09-23-13-58-584_ru.yandex.taximeter.jpg']
+list_file = ['Screenshot_2021-09-02-15-11-43-152_ru.yandex.taximeter.jpg']
 
-with sq.connect(base_name) as con:
-    cursor = con.cursor()
-    cursor.execute(f"SELECT name_file FROM names_files WHERE easyread = 0")
-    list = cursor.fetchall()
-    for i in list:
-        list_file.append(i[0])
+# with sq.connect(base_name) as con:
+#     cursor = con.cursor()
+#     cursor.execute(f"SELECT name_file FROM names_files WHERE easyread = 0")
+#     list = cursor.fetchall()
+#     for i in list:
+#         list_file.append(i[0])
 
 # for filename in tqdm(list_file):
 
 for filename in (list_file):
     # print(filename)
     pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR/tesseract.exe'
-    screenshotname = screenshotspath + filename
+    screenshotname = screenshetspath + filename
     image = cv2.imread(screenshotname)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     config = r'--oem 3 --psm 6'
@@ -62,8 +62,10 @@ for filename in (list_file):
     date = str(nameToDate(filename))
     if date < '2022-04-04 00-00-00':
         fields = readTextToFelds(string_split, filename)
+        print('old')
     else:
         fields = readTextToFelds2(string_split, filename)
+        print('new')
     string_split_list.append(fields)
 
 for i in string_split_list:
